@@ -1,29 +1,32 @@
 version: 0.2
 
+env:
+  variables:
+    NODE_ENV: production
+    AWS_SDK_LOAD_CONFIG: 1
+
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      nodejs: 16
     commands:
-      - echo Installing dependencies...
+      - echo "Installing Node.js dependencies..."
       - npm install
+      - npm install -g pm2  # Only needed if using PM2 in Procfile
+
   pre_build:
     commands:
-      - echo Running tests...
+      - echo "Running tests..."
       - npm test
+
   build:
     commands:
-      - echo Building the application...
-      - npm run build
-  post_build:
-    commands:
-      - echo Creating deployment package...
-      - zip -r application.zip . -x "*.git*"
+      - echo "Building application..."
+      - npm run build  # If you have a build script
+      - echo "Creating deployment package..."
+      - zip -r application.zip . -x "*.git*" "*.env*" "node_modules/*"
 
 artifacts:
   files:
     - application.zip
-
-env:
-  variables:
-    AWS_SDK_LOAD_CONFIG: "1"
+  discard-paths: yes
